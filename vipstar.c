@@ -15,7 +15,6 @@ int scanhash_sha256d_vips(int thr_id, struct work *work, uint32_t max_nonce, uin
 	const uint32_t first_nonce = pdata[19];
 	uint32_t n = pdata[19] - 1;
 
-#endif
 #if defined(__vips__) && defined(USE_ASM)
 	if (sha256_use_4way())
 		return scanhash_sha256d_vips_4way(thr_id, work, max_nonce, hashes_done);
