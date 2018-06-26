@@ -2,19 +2,6 @@
 #include <inttypes.h>
 #include "sha2.h"
 
-#define OCLSTRINGIFY(...) #__VA_ARGS__
-int scanhash_sha256d_vips(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done)
-{
-	uint32_t _ALIGN(128) data[128];
-	uint32_t _ALIGN(32) hash[8];
-	uint32_t _ALIGN(32) midstate[8];
-	uint32_t _ALIGN(32) prehash[8];
-	uint32_t *pdata = work->data;
-	uint32_t *ptarget = work->target;
-	const uint32_t Htarg = ptarget[7];
-	const uint32_t first_nonce = pdata[19];
-	uint32_t n = pdata[19] - 1;
-
 #if defined(__vips__) && defined(USE_ASM)
 	if (sha256_use_4way())
 		return scanhash_sha256d_vips_4way(thr_id, work, max_nonce, hashes_done);
