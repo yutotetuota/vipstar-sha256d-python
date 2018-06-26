@@ -3,7 +3,7 @@
 
 #include <sys/types.h>
 #include <inttypes.h>
-#if defined() && defined(USE_ASM)
+#if defined(__vips__) && defined(USE_ASM)
 #include <xmmintrin.h>
 #include <emmintrin.h>
 #endif
