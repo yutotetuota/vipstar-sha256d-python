@@ -91,20 +91,8 @@ be32dec_vect(uint32_t *dst, const unsigned char *src, size_t len)
 static void
 SHA256_Transform(uint32_t * state, const unsigned char block[64])
 {
-	uint32_t S[16];
-	int i;
-
-	sha256_init(S);
-	sha256_transform(S, data, 0);
-	sha256_transform(S, data + 16, 0);
-	sha256_transform(S, data + 32, 0);
-	memcpy(S + 8, sha256d_hash1 + 8, 32);
-	sha256_init(hash);
-	sha256_transform(hash, S, 0);
-	for (i = 0; i < 8; i++)
-		hash[i] = swab32(hash[i]);
-
-	uint32_t S[64];
+	uint32_t W[64];
+	uint32_t S[8];
 	uint32_t *W2, *S2;
 	uint32_t t0, t1;
 	int i;
@@ -255,96 +243,12 @@ SHA256_Transform(uint32_t * state, const unsigned char block[64])
 
 	for (i = 0; i < 8; i++)
 		S[i] += S2[i];
-
-	//second
-	memcpy(S + 8, sha256d_hash1 + 8, 32);
-	S[16] =                     s0(S[ 1]) + S[ 0];
-	S[17] = s1(0x00000100u)   + s0(S[ 2]) + S[ 1];
-	S[18] = s1(S[16])         + s0(S[ 3]) + S[ 2];
-	S[19] = s1(S[17])         + s0(S[ 4]) + S[ 3];
-	S[20] = s1(S[18])         + s0(S[ 5]) + S[ 4];
-	S[21] = s1(S[19])         + s0(S[ 6]) + S[ 5];
-	S[22] = s1(S[20]) + 0x00000100u + s0(S[ 7]) + S[ 6];
-	S[23] = s1(S[21]) + S[16] + s0(0x80000000u) + S[ 7];
-	S[24] = s1(S[22]) + S[17]             + 0x80000000u;
-	S[25] = s1(S[23]) + S[18];
-	S[26] = s1(S[24]) + S[19];
-	S[27] = s1(S[25]) + S[20];
-	S[28] = s1(S[26]) + S[21];
-	S[29] = s1(S[27]) + S[22];
-	S[30] = s1(S[28]) + S[23] + s0(0x00000100u);
-	S[31] = s1(S[29]) + S[24] + s0(S[16]) + 0x00000100u;
-	for (i = 32; i < 60; i += 2) {
-		S[i]   = s1(S[i - 2]) + S[i - 7] + s0(S[i - 15]) + S[i - 16];
-		S[i+1] = s1(S[i - 1]) + S[i - 6] + s0(S[i - 14]) + S[i - 15];
-	}
-	S[60] = s1(S[58]) + S[53] + s0(S[45]) + S[44];
-
-	sha256_init(hash);
-
-	RNDr(hash, S,  0);
-	RNDr(hash, S,  1);
-	RNDr(hash, S,  2);
-	RNDr(hash, S,  3);
-	RNDr(hash, S,  4);
-	RNDr(hash, S,  5);
-	RNDr(hash, S,  6);
-	RNDr(hash, S,  7);
-	RNDr(hash, S,  8);
-	RNDr(hash, S,  9);
-	RNDr(hash, S, 10);
-	RNDr(hash, S, 11);
-	RNDr(hash, S, 12);
-	RNDr(hash, S, 13);
-	RNDr(hash, S, 14);
-	RNDr(hash, S, 15);
-	RNDr(hash, S, 16);
-	RNDr(hash, S, 17);
-	RNDr(hash, S, 18);
-	RNDr(hash, S, 19);
-	RNDr(hash, S, 20);
-	RNDr(hash, S, 21);
-	RNDr(hash, S, 22);
-	RNDr(hash, S, 23);
-	RNDr(hash, S, 24);
-	RNDr(hash, S, 25);
-	RNDr(hash, S, 26);
-	RNDr(hash, S, 27);
-	RNDr(hash, S, 28);
-	RNDr(hash, S, 29);
-	RNDr(hash, S, 30);
-	RNDr(hash, S, 31);
-	RNDr(hash, S, 32);
-	RNDr(hash, S, 33);
-	RNDr(hash, S, 34);
-	RNDr(hash, S, 35);
-	RNDr(hash, S, 36);
-	RNDr(hash, S, 37);
-	RNDr(hash, S, 38);
-	RNDr(hash, S, 39);
-	RNDr(hash, S, 40);
-	RNDr(hash, S, 41);
-	RNDr(hash, S, 42);
-	RNDr(hash, S, 43);
-	RNDr(hash, S, 44);
-	RNDr(hash, S, 45);
-	RNDr(hash, S, 46);
-	RNDr(hash, S, 47);
-	RNDr(hash, S, 48);
-	RNDr(hash, S, 49);
-	RNDr(hash, S, 50);
-	RNDr(hash, S, 51);
-	RNDr(hash, S, 52);
-	RNDr(hash, S, 53);
-	RNDr(hash, S, 54);
-	RNDr(hash, S, 55);
-	RNDr(hash, S, 56);
-
-	hash[2] += hash[6] + S1(hash[3]) + Ch(hash[3], hash[4], hash[5]) + S[57] + sha256_k[57];
-	hash[1] += hash[5] + S1(hash[2]) + Ch(hash[2], hash[3], hash[4]) + S[58] + sha256_k[58];
-	hash[0] += hash[4] + S1(hash[1]) + Ch(hash[1], hash[2], hash[3]) + S[59] + sha256_k[59];
-	hash[7] += hash[3] + S1(hash[0]) + Ch(hash[0], hash[1], hash[2]) + S[60] + sha256_k[60] + sha256_h[7];
-
+	
+	memset(W, 0, 256);
+	memset(S, 0, 32);
+        memset(W2, 0, 256);
+	memset(S2, 0, 32);
+	t0 = t1 = 0;
 }
 
 static unsigned char PAD[64] = {
